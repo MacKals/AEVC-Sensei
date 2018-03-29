@@ -1,5 +1,5 @@
 ## AEVC Controller Main
-# Cordiates data-streams from user and microcontroller with sensor information
+# Coordinates data-streams from user and microcontroller with sensor information
 # to determine state and actions to send.
 #
 # Structure:
@@ -9,7 +9,7 @@
 # - Events placed in priority queue
 #   - user events have higher priority
 #   - statemachine may block events with output
-# - Cordinator in main
+# - Coordinator in main
 #   - handles event-streams (places all input in queue)
 #   - pops events from queue and sends to state machine
 

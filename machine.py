@@ -20,11 +20,12 @@ class AEVC(object):
 
         if s.returnMessages.empty():
             self.state = self.state.on_event(event)
-            state + ": " + event # anounce state change made
+            state + ": " + event # announce state change made
 
             s.returnMessages.extend(rm)
 
 
 
     def controllerEvent(self, event):
-        # The next state will be the result of the on_event function.
+
+    #The next state will be the result of the on_event function.

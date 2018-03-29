@@ -45,7 +45,7 @@ class RC(Enum):
 
 class Manual(AEVCState):
 
-    # In this state we are not requiering one command to be completed before
+    # In this state we are not requiring one command to be completed before
     # the next is initialized, but we still want to keep track
 
     def on_event(self, event):
@@ -126,7 +126,7 @@ class Centering(AEVCState):
             time.sleep(1)
             execute(teensy.moveForward(x))
 
-            #TODO: better motion, assertain sign of x error
+            #TODO: better motion, ascertain sign of x error
 
         elif (abs(y-yDistance) > yError):
             execute(teensy.moveForward(y-yDistance))

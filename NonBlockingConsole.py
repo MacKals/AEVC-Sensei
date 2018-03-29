@@ -1,5 +1,5 @@
-## Class for taking console input frmo user without blocking execution
-## Found implementation foun here: https://stackoverflow.com/questions/2408560/python-nonblocking-console-input
+## Class for taking console input from user without blocking execution
+## Found implementation found here: https://stackoverflow.com/questions/2408560/python-nonblocking-console-input
 
 import sys
 import select
