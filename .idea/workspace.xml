@@ -121,15 +121,21 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   <component name="ProjectFrameBounds" fullScreen="true">
     <option name="y" value="22" />
     <option name="width" value="1680" />
     <option name="height" value="1028" />
 =======
+=======
+>>>>>>> Stashed changes
   <component name="ProjectFrameBounds">
     <option name="y" value="23" />
     <option name="width" value="1440" />
     <option name="height" value="877" />
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   </component>
   <component name="ProjectView">
@@ -166,6 +172,10 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+    <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
+>>>>>>> Stashed changes
 =======
     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
 >>>>>>> Stashed changes
