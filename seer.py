@@ -21,7 +21,7 @@ if thisIsAPi:
 else:
     print("This is not a Pi")
 
-def takePicture():
+def take_picture():
     if thisIsAPi:
         picamera.PiCamera().capture(imageName())
         imageNameIncrement += 1

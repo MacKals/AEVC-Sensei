@@ -1,13 +1,8 @@
 import serial
 
-#port = None
-
 port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
 
-def init():
-    port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
-
-def readLine():
+def read_line():
     if port.inWaiting:
         return port.readline
     return False
@@ -41,5 +36,5 @@ def homeArm():
 def homeBase():
     port.write("HT")
 
-def home(angle):
+def home():
     port.write("H")

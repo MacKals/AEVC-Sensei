@@ -1,9 +1,9 @@
-from states import AEVCState
+from state_template import AEVCState
 import time
 from enum import Enum, auto
 
 import teensy_talker as teensy
-import positionFromImage as vision
+import seer
 
 
 returnMessages = {}
@@ -77,7 +77,7 @@ class Detecting(AEVCState):
         ##  - return centering if detected
         ##  - loop otherwise
 
-        if vision.portPresent():
+        if seer.portPresent():
             return Centering
         else:
             return self
@@ -106,7 +106,7 @@ class Centering(AEVCState):
     # All quantaties but x position is known fully, but the sign for x-position is ambigous. Therefore, we need to implement a strategy in which two data-points are collected in order to assertain whether we need to move left or right in order to get in front of the port.
     #
     def on_event(self, event):
-        if not vision.portPresent():
+        if not seer.portPresent():
             print "Cannot find port."
             return Detecting
 
@@ -132,17 +132,17 @@ class Centering(AEVCState):
             execute(teensy.moveForward(y-yDistance))
 
 
-class Approaching(AEVCState):
-    def on_event(self, event):
-
-class Connecting(AEVCState):
-    def on_event(self, event):
-
-class Connected(AEVCState):
-    def on_event(self, event):
-
-class Disconnecting(AEVCState):
-    def on_event(self, event):
-
-class Returning(AEVCState):
-    def on_event(self, event):
+# class Approaching(AEVCState):
+#     def on_event(self, event):
+#
+# class Connecting(AEVCState):
+#     def on_event(self, event):
+#
+# class Connected(AEVCState):
+#     def on_event(self, event):
+#
+# class Disconnecting(AEVCState):
+#     def on_event(self, event):
+#
+# class Returning(AEVCState):
+#     def on_event(self, event):

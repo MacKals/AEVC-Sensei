@@ -13,21 +13,19 @@
 #   - handles event-streams (places all input in queue)
 #   - pops events from queue and sends to state machine
 
-from NonBlockingConsole import NonBlockingConsole as console
+import Queue
+from multiprocessing import Process
+
+from console import NonBlockingConsole as console
 import teensy_talker as teensy
-import XBoxController as rc
-
+import xbox
 import machine
-
-from queue import queue
 
 
 # async collector of info and placing it in queue
 
-from multiprocessing import Process
-
 q = queue()
-m = machine()
+m = machine.AEVC()
 
 def dequeue():
     while True:
@@ -37,18 +35,18 @@ def dequeue():
                 q.push(r)
 
 info('main line')
-p = Process(target=dequeue, args=())
+p = Process(target=deque, args=())
 p.start()
 
 
-def readFromTerminal():
+def read_from_terminal():
     return console.get_data()
 
-def readFromRC():
+def read_from_xbox():
     return None # TODO: get data!
 
-def readFromTeensy():
-    return teensy.readLine()
+def read_from_teensy():
+    return teensy.read_line()
 
 def push(arg):
     if arg is not None:
@@ -56,5 +54,5 @@ def push(arg):
 
 while True:
     push(readFromTerminal())
-    push(readFromRC)
+    push(readFromXbox)
     push(readFromTeensy())
