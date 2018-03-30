@@ -1,15 +1,20 @@
-from state_template import AEVCState
 import time
-from enum import Enum, auto
+from enum import Enum
+
+from state_template import AEVCState
 
 import teensy_talker as teensy
 import seer
 
 
-returnMessages = {}
+returnMessages = []
+
 
 def execute(rm):
-    returnMessages.extend(rm)
+    returnMessages.extend('k')
+    if rm:
+        returnMessages.extend(rm)
+
 
 class Initialize(AEVCState):
 
@@ -17,31 +22,33 @@ class Initialize(AEVCState):
         execute(teensy.enable())
         time.sleep(0.5)
         execute(teensy.home())
-        return UnlockedState()
+        return Idle()
 
 
 class Idle(AEVCState):
     def on_event(self, event):
-        if event is "a":
+        if event is 'a':
             return Detecting
 
+
 class Sleep(AEVCState):
-    def on_entry(self, event):
-        event(teensy.disable())
+    def on_entry(self):
+        execute(teensy.disable())
 
     def on_event(self, event):
-        if event is "a":
+        if event is 'a':
             return Initialize
 
 
-### Manual Control
+# Manual Control
 
 class RC(Enum):
-    forward = auto()
-    turn = auto()
-    turnBody = auto()
-    turnBase = auto()
-    height = auto()
+    forward = 0
+    turn = 1
+    turnBody = 2
+    turnBase = 3
+    height = 4
+
 
 class Manual(AEVCState):
 
@@ -53,31 +60,30 @@ class Manual(AEVCState):
         command, value = event
 
         if command is RC.forward:
-            execute(teensy.moveForward(value))
+            execute(teensy.move_forward(value))
 
         elif command is RC.turn:
-            execute(teensy.turn(value))
+            execute(teensy.spin(value))
 
         elif command is RC.turnBody:
-            execute(teensy.turnBody(value))
+            execute(teensy.spin_body(value))
 
         elif command is RC.turnBase:
-            execute(teensy.turnBase(value))
+            execute(teensy.spin_base(value))
 
         elif command is RC.height:
             execute(teensy.height(value))
 
 
-
-### Automated workflow states:
+# Automated workflow states:
 
 class Detecting(AEVCState):
     def on_event(self, event):
-        ## Take picture, see if port there,
-        ##  - return centering if detected
-        ##  - loop otherwise
+        # Take picture, see if port there,
+        #  - return centering if detected
+        #  - loop otherwise
 
-        if seer.portPresent():
+        if seer.port_present():
             return Centering
         else:
             return self
@@ -87,62 +93,74 @@ class Centering(AEVCState):
 
     lastControlVariable = None
 
-    phiErrorLimit = 1 // degree
-    xError = 0.005 // m
-    yError = 0.005 // m
-    zError = 0.005 // m
-    yDistance = 2          // m
-    roughYError = 0.5   // m
+    phiErrorLimit = 1  # degree
+    xError = 0.005     # m
+    yError = 0.005     # m
+    zError = 0.005     # m
+    yDistance = 2      # m
+    roughYError = 0.5  # m
 
-    # Mapping relative position from camera and lidar distance information to robot motion.
+    # Mapping relative position from camera and LIDAR distance information to robot motion.
     #
-    # Order of presidence for motion:
+    # Order of precedence for motion:
     #  - rotation (phi) (AEVC facing vehicle straight)
     #  - height (camera on level with port)
-    #  - y position (approximatley far enough away so as not to collide)
-    #  - x position (centerd in front of vehicle port)
-    #  - y positoin (presice positioning in fornt of port)
+    #  - y position (approximately far enough away so as not to collide)
+    #  - x position (centered in front of vehicle port)
+    #  - y position (precise positioning in front of port)
     #
-    # All quantaties but x position is known fully, but the sign for x-position is ambigous. Therefore, we need to implement a strategy in which two data-points are collected in order to assertain whether we need to move left or right in order to get in front of the port.
-    #
+    # All quantities but x position is known fully, but the sign for x-position is ambiguous.
+    # Therefore, we need to implement a strategy in which two data-points are collected in order
+    # to assertion whether we need to move left or right in order to get in front of the port.
+
     def on_event(self, event):
-        if not seer.portPresent():
-            print "Cannot find port."
+
+        if not seer.port_present():
+            print("Cannot find port.")
             return Detecting
 
-        x, y, z, phi = pos.posFromImage(imageName)
+        x, y, z, phi = seer.pos_from_image(seer.image_name)
 
-        if (abs(phi) > phiErrorLimit):
-            execute(teensy.turn(phi))
+        if abs(phi) > self.phiErrorLimit:
+            execute(teensy.spin(phi))
 
-        elif (abs(z) > zError):
+        elif abs(z) > self.zError:
             execute(teensy.height(-z))
 
-        elif (abs(y-yDistance) > roughYError):
-            execute(teensy.moveForward(y-yDistance))
+        elif abs(y-self.yDistance) > self.roughYError:
+            execute(teensy.move_forward(y - self.yDistance))
 
-        elif (abs(x) > xError):
-            execute(teensy.turnBase(-90))
+        elif abs(x) > self.xError:
+            execute(teensy.spin_base(-90))
             time.sleep(1)
-            execute(teensy.moveForward(x))
+            execute(teensy.move_forward(x))
 
-            #TODO: better motion, ascertain sign of x error
+            # TODO: better motion, ascertain sign of x error
 
-        elif (abs(y-yDistance) > yError):
-            execute(teensy.moveForward(y-yDistance))
+        elif abs(y - self.yDistance) > self.yError:
+            execute(teensy.move_forward(y - self.yDistance))
 
 
-# class Approaching(AEVCState):
-#     def on_event(self, event):
-#
-# class Connecting(AEVCState):
-#     def on_event(self, event):
-#
-# class Connected(AEVCState):
-#     def on_event(self, event):
-#
-# class Disconnecting(AEVCState):
-#     def on_event(self, event):
-#
-# class Returning(AEVCState):
-#     def on_event(self, event):
+class Approaching(AEVCState):
+    def on_event(self, event):
+        pass
+
+
+class Connecting(AEVCState):
+    def on_event(self, event):
+        pass
+
+
+class Connected(AEVCState):
+    def on_event(self, event):
+        pass
+
+
+class Disconnecting(AEVCState):
+    def on_event(self, event):
+        pass
+
+
+class Returning(AEVCState):
+    def on_event(self, event):
+        pass

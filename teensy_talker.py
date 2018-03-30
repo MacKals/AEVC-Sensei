@@ -4,37 +4,43 @@ port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
 
 def read_line():
     if port.inWaiting:
-        return port.readline
+        return port.readline()
     return False
 
 def enable():
-    port.write("EN")
-    return "ok"
+    port.write("EN\n")
 
 def disable():
-    port.write("DI")
-    return "ok"
+    port.write("DI\n")
 
-def moveForward(dist):
+def move_forward(dist):
     port.write("MF " + str("%.4f" % dist))
+    return "dd"
 
 def spin(angle):
     port.write("S " + str("%.4f" % angle))
+    return "dd"
 
 def height(dist):
     port.write("A " + str("%.4f" % dist))
+    return "d"
 
-def spinBody(angle):
+def spin_body(angle):
     port.write("ST " + str("%.4f" % angle))
+    return "d"
 
-def spinBase(angle):
+def spin_base(angle):
     port.write("SB " + str("%.4f" % angle))
+    return "ddd"
 
-def homeArm():
+def home_arm():
     port.write("HA")
+    return "hdd"
 
-def homeBase():
+def home_base():
     port.write("HT")
+    return "hdddd"
 
 def home():
     port.write("H")
+    return "hhdddddd"

@@ -7,10 +7,16 @@ class AEVCState(object):
     def __init__(self):
         print('Processing current state:', str(self))
 
+    def on_entry(self):
+        pass
+
     def on_event(self, event):
         """
         Handle events that are delegated to this State.
         """
+        pass
+
+    def on_exit(self):
         pass
 
     def __repr__(self):

@@ -1,33 +1,24 @@
 ## AEVC ##
-
 # Determine device type
-import os
-os.uname()
-thisIsAPi = os.uname()[4][:3] is 'arm'
-
-
 import cv2
 import numpy as np
 
+import picamera
+picamera.PiCamera().vflip = True
+
+
 imageNameIncrement = 0
 
-def imageName():
+
+def image_name():
     return "temp/image" + str(imageNameIncrement) + ".jpg"
 
-if thisIsAPi:
-    print("Running on a Raspberry Pi")
-    import picamera
-    picamera.PiCamera().vflip = True
-else:
-    print("This is not a Pi")
 
 def take_picture():
-    if thisIsAPi:
-        picamera.PiCamera().capture(imageName())
-        imageNameIncrement += 1
-    else:
-        return None
-        # TODO: setImageName to some exisitng image
+    picamera.PiCamera().capture(image_name())
+
+    global imageNameIncrement
+    imageNameIncrement += 1
 
 
 # Circle properties
@@ -44,80 +35,83 @@ yAngleOfView = 48.8/2 * np.pi/180  # rad
 widthAt1m = 2 * np.tan(xAngleOfView) # total width of cameras field of view 1m in front
 expectedWidthFraction = diameter / widthAt1m
 
-# Takes picture and returns true if there is a port detected
-def portPresent():
 
+# Takes picture and returns true if there is a port detected
+def port_present():
+    take_picture()
     return True
 
-def xAngleFromOffset(x):
-    pixelOffset = x - xPixels/2
-    return pixelOffset/xPixels * xAngleOfView
 
-def yAngleFromOffset(y):
-    pixelOffset = y - yPixels/2
-    return pixelOffset/yPixels * yAngleOfView
+def x_angle_from_offset(x):
+    pixel_offset = x - xPixels/2
+    return pixel_offset/xPixels * xAngleOfView
+
+
+def y_angle_from_offset(y):
+    pixel_offset = y - yPixels/2
+    return pixel_offset/yPixels * yAngleOfView
 
 
 # Distance from camera to object
 # Assuming: port is located in centre of image to avoid underestimate
-def xFrom(width):
+def x_from(width):
     return xPixels/width * expectedWidthFraction
+
 
 # Angle circle must be turned to face camera
 # Assuming: port is located in centre of image to minimize error
-def thetaFrom(width, height):
+def theta_from(width, height):
     return np.arccos(width/height)
 
-# Angle camera must be turned to centre cirlce in image
-def phiFrom(x):
-    return xAngleFromOffset(x)
 
-def hFrom(y, height):
-    return x(height) * np.tan(yAngleFromOffset(y))
+# Angle camera must be turned to centre circle in image
+def phi_from(x):
+    return x_angle_from_offset(x)
 
 
+def h_from(y, height):
+    return x_from(height) * np.tan(y_angle_from_offset(y))
 
 
-def convertToBinary(image):
+def convert_to_binary(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret, binary = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY_INV)
     return binary
 
 
-def relativePositionFromBinary(binary):
+def relative_position_from_binary(binary):
 
-    kernel = np.ones((5, 5), np.uint8)
-    returnedImage, contours, hierarchy = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    returned_image, contours, hierarchy = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     if not contours:
         return
 
     # pick largest contour
     index = 0
-    maxArea = 0
+    max_area = 0
 
     for i in range(len(contours)):
-        if cv2.contourArea(contours[i]) > maxArea:
+        if cv2.contourArea(contours[i]) > max_area:
             index = i
-            maxArea = cv2.contourArea(contours[i])
+            max_area = cv2.contourArea(contours[i])
 
     (x, y), (width, height), _ = cv2.fitEllipse(contours[index])
 
     # computing parameters
 
-    rComputed = xFrom(width)
-    thetaComputed = thetaFrom(width, height)
-    phiComputed = phiFrom(x)
-    hComputed = hFrom(y, height)
+    r_computed = x_from(width)
+    theta_computed = theta_from(width, height)
+    phi_computed = phi_from(x)
+    h_computed = h_from(y, height)
 
-    xRelative = rComputed * np.sin(thetaComputed)
-    yRelative = rComputed * np.cos(thetaComputed)
-    zRelative = hComputed
-    phiRelative = phiComputed
+    x_relative = r_computed * np.sin(theta_computed)
+    y_relative = r_computed * np.cos(theta_computed)
+    z_relative = h_computed
+    phi_relative = phi_computed
 
-    return (xRelative*1000, yRelative*1000, zRelative*1000, phiRelative)
+    return x_relative*1000, y_relative*1000, z_relative*1000, phi_relative
 
 
-def posFromImage(image):
-    binary = convertToBinary(image)
-    return relativePositionFromBinary(binary)
+def pos_from_image(image):
+    binary = convert_to_binary(image)
+    return relative_position_from_binary(binary)

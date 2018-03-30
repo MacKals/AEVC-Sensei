@@ -1,31 +1,29 @@
-## Class for taking console input from user without blocking execution
-## Found implementation found here: https://stackoverflow.com/questions/2408560/python-nonblocking-console-input
+# Class for taking console input from user without blocking execution
+# Found implementation found here: https://stackoverflow.com/questions/2408560/python-nonblocking-console-input
 
 import sys
 import select
 import tty
 import termios
-import time
 
 
-class NonBlockingConsole(object):
+class console(object):
 
     def __enter__(self):
         self.old_settings = termios.tcgetattr(sys.stdin)
         tty.setcbreak(sys.stdin.fileno())
-        return self
 
     def __exit__(self, type, value, traceback):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
 
-    def get_data(self):
+    @staticmethod
+    def get_data():
         if select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
             return sys.stdin.read(1)
         return False
 
 
-## Example:
-
+# Example:
 # with NonBlockingConsole() as nbc:
 #     i = 0
 #     while 1:
@@ -33,7 +31,6 @@ class NonBlockingConsole(object):
 #         i += 1
 #         if nbc.get_data() == '\x1b':  # x1b is ESC
 #             break
-
 
 # with NonBlockingConsole() as nbc:
 #     i = 0
