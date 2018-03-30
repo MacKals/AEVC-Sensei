@@ -8,8 +8,19 @@ class AEVC(object):
     """
 
     def __init__(self):
-        self.state = s.Initialize() # Start with initialization state
+        self.state = s.Initialize()  # Start with initialization state
 
+    def update_state(self, event):
+        new_state = self.state.on_event(event)
+
+        if new_state:
+            self.state.on_exit()
+
+            self.state = new_state
+            self.state.on_entry()
+            print("Transitioned to " + str(self.state) + ": " + str(event))  # announce state change made
+        else:
+            print("Stayed in " + str(self.state))
 
     def teensy_event(self, event):
         if event in s.returnMessages:
@@ -19,23 +30,18 @@ class AEVC(object):
             print("error in machine.py, tried to remove " + str(event) + " from " + str(s.returnMessages))
 
         if not s.returnMessages:
-
-            last_state = self.state
-            self.state = self.state.on_event(event)
-
-            last_state.on_exit()
-            self.state.on_entry()
-
-            print("Transitioned to " + str(self.state) + ": " + str(event))  # announce state change made
+            self.update_state(event)
 
     def user_event(self, event):
-        last_state = self.state
-        self.state = self.state.on_event(event)
 
-        last_state.on_exit()
-        self.state.on_entry()
+        if event is 'q':
+            self.state = s.Sleep()
+            print("Sleeping")
+            self.state.on_entry()
+            return
 
-        print("Transitioned to " + str(self.state) + ": " + str(event))  # announce state change made
+        self.update_state(event)
+
 
     # def controllerEvent(self, event):
     # The next state will be the result of the on_event function.

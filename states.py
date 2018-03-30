@@ -1,5 +1,6 @@
 import time
-from enum import Enum
+from com_messages import rc
+
 
 from state_template import AEVCState
 
@@ -20,15 +21,17 @@ class Initialize(AEVCState):
 
     def on_event(self, event):
         execute(teensy.enable())
-        time.sleep(0.5)
+        time.sleep(1)
         execute(teensy.home())
         return Idle()
 
 
 class Idle(AEVCState):
     def on_event(self, event):
-        if event is 'a':
-            return Detecting
+        if event is 'd':
+            return Detecting()
+        if event is 'm':
+            return Manual()
 
 
 class Sleep(AEVCState):
@@ -37,18 +40,10 @@ class Sleep(AEVCState):
 
     def on_event(self, event):
         if event is 'a':
-            return Initialize
+            return Initialize()
 
 
 # Manual Control
-
-class RC(Enum):
-    forward = 0
-    turn = 1
-    turnBody = 2
-    turnBase = 3
-    height = 4
-
 
 class Manual(AEVCState):
 
@@ -59,19 +54,19 @@ class Manual(AEVCState):
 
         command, value = event
 
-        if command is RC.forward:
+        if command is rc.forward:
             execute(teensy.move_forward(value))
 
-        elif command is RC.turn:
+        elif command is rc.spin:
             execute(teensy.spin(value))
 
-        elif command is RC.turnBody:
+        elif command is rc.spinBody:
             execute(teensy.spin_body(value))
 
-        elif command is RC.turnBase:
+        elif command is rc.spinBase:
             execute(teensy.spin_base(value))
 
-        elif command is RC.height:
+        elif command is rc.height:
             execute(teensy.height(value))
 
 
@@ -84,7 +79,7 @@ class Detecting(AEVCState):
         #  - loop otherwise
 
         if seer.port_present():
-            return Centering
+            return Centering()
         else:
             return self
 
@@ -117,7 +112,7 @@ class Centering(AEVCState):
 
         if not seer.port_present():
             print("Cannot find port.")
-            return Detecting
+            return Detecting()
 
         x, y, z, phi = seer.pos_from_image(seer.image_name)
 

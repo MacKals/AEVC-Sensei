@@ -1,4 +1,5 @@
 import serial
+import time
 
 port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
 
@@ -8,10 +9,11 @@ def read_line():
     return False
 
 def enable():
-    port.write("EN\n")
+    port.write('EN')
+    time.sleep(1)
 
 def disable():
-    port.write("DI\n")
+    port.write("DI")
 
 def move_forward(dist):
     port.write("MF " + str("%.4f" % dist))
