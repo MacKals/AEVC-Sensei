@@ -16,12 +16,10 @@
 from multiprocessing import Process, Queue
 
 from machine import AEVC
-from com_messages import rc
 
 from console import console
 import teensy_talker as teensy
-import xbox
-
+import remote_controller as xbox
 
 # async collector of info and placing it in queue
 
@@ -29,7 +27,6 @@ user_queue = Queue()
 teensy_queue = Queue()
 
 m = AEVC()
-j = xbox.Joystick()
 
 
 def dequeue():
@@ -57,39 +54,8 @@ def read_from_terminal():
     return console.get_data()
 
 
-def joysick_action(amount):
-    if abs(amount) < 0.3:
-        return 0
-    elif amount < 0:
-        return -1
-    else:
-        return 1
-
-
 def read_from_xbox():
-
-    if j.B():
-        return 'q'
-    if j.Y():
-        return 'h'
-    if j.A():
-        return 'm'
-    if j.Start():
-        return 'a'
-
-    lx = joysick_action(j.leftX())
-    ly = joysick_action(j.leftY())
-    rx = joysick_action(j.rightX())
-    ry = joysick_action(j.rightY())
-
-    if lx:
-        return rc.spin, lx
-    if ly:
-        return rc.forward, ly
-    if rx:
-        return rc.spinBase, rx
-    if ry:
-        return rc.height, ry
+    return xbox.command()
 
 
 def read_from_teensy():

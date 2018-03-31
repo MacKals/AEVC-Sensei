@@ -13,7 +13,7 @@ class console(object):
         self.old_settings = termios.tcgetattr(sys.stdin)
         tty.setcbreak(sys.stdin.fileno())
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type_, value, traceback):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
 
     @staticmethod
@@ -31,20 +31,19 @@ class console(object):
 #         i += 1
 #         if nbc.get_data() == '\x1b':  # x1b is ESC
 #             break
-
-# with NonBlockingConsole() as nbc:
-#     i = 0
-#     while 1:
-#     #    print i
-#         time.sleep(0.1)
-#     #    i += 1
-#         d = nbc.get_data()
-#         if d: print(d)
-#         if d == 'w':
-#             print('up')
-#         elif d == 's':
-#             print ('down')
-#         elif d == 'a':
-#             print ('right')
-#         elif d == 'd':
-#             print ('left')
+#
+# import time
+# con = console()
+# while True:
+#     time.sleep(0.1)
+#     d = con.get_data()
+#     if d:
+#         print(d)
+#     if d == 'w':
+#         print('up')
+#     elif d == 's':
+#         print('down')
+#     elif d == 'a':
+#         print('right')
+#     elif d == 'd':
+#         print('left')

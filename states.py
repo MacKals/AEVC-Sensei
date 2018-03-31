@@ -1,12 +1,12 @@
 import time
-from com_messages import rc
+from com_messages import Commands
 
 
 from state_template import AEVCState
 
 import teensy_talker as teensy
 import seer
-
+import remote_controller as rc
 
 returnMessages = []
 
@@ -18,20 +18,25 @@ def execute(rm):
 
 
 class Initialize(AEVCState):
-
-    def on_event(self, event):
+    def on_entry(self):
         execute(teensy.enable())
         time.sleep(1)
         execute(teensy.home())
+
+    def on_event(self, event):
         return Idle()
 
 
 class Idle(AEVCState):
     def on_event(self, event):
-        if event is 'd':
+        if event is Commands.connect:
             return Detecting()
-        if event is 'm':
+        if event is Commands.manual:
             return Manual()
+        if event is Commands.disable:
+            return Sleep()
+        if event is Commands.init:
+            return Initialize()
 
 
 class Sleep(AEVCState):
@@ -39,7 +44,7 @@ class Sleep(AEVCState):
         execute(teensy.disable())
 
     def on_event(self, event):
-        if event is 'a':
+        if event is Commands.init:
             return Initialize()
 
 
@@ -52,22 +57,8 @@ class Manual(AEVCState):
 
     def on_event(self, event):
 
-        command, value = event
-
-        if command is rc.forward:
-            execute(teensy.move_forward(value))
-
-        elif command is rc.spin:
-            execute(teensy.spin(value))
-
-        elif command is rc.spinBody:
-            execute(teensy.spin_body(value))
-
-        elif command is rc.spinBase:
-            execute(teensy.spin_base(value))
-
-        elif command is rc.height:
-            execute(teensy.height(value))
+        left, right = rc.drive_action()
+        teensy.set_velocity(left, right)
 
 
 # Automated workflow states:

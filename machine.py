@@ -8,11 +8,11 @@ class AEVC(object):
     """
 
     def __init__(self):
-        self.state = s.Initialize()  # Start with initialization state
+        self.state = s.Sleep()  # Start with sleep state
 
     def update_state(self, event):
         new_state = self.state.on_event(event)
-
+        
         if new_state:
             self.state.on_exit()
 

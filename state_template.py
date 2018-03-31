@@ -5,7 +5,7 @@ class AEVCState(object):
     """
 
     def __init__(self):
-        print('Processing current state:', str(self))
+        print('Init new state:' + str(self))
 
     def on_entry(self):
         pass
