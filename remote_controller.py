@@ -5,13 +5,12 @@ from com_messages import Commands
 
 class RemoteController(object):
 
-    def __init__(self):
+    def __init__(self, joystick_array):
+
+        self.joystick_array = joystick_array
 
         self.j = xbox.Joystick()
         self.lastCommand = None
-
-        self.x = 0
-        self.y = 0
 
     # Priority reading from buttons, as they should never be pressed simultaniously with motion.
     # When doing multiple identical items, it is ok to queue them up.
@@ -26,7 +25,8 @@ class RemoteController(object):
         return new_command
 
     def command(self):
-        self.x, self.y = self.j.leftStick()  # update values from subprocess
+        # update joystick motion
+        self.store_drive_action()
 
         if self.j.B():
             return Commands.disable
@@ -38,21 +38,21 @@ class RemoteController(object):
             return Commands.connect
         if self.j.Start():
             return Commands.init
-
         return None
 
-    def drive_action(self):
+    def store_drive_action(self):
 
-        print(str(self.x) + " " + str(self.y))
+        x, y = self.j.leftStick()
 
         # Scale down input
-        self.x = 0.5 * self.x
-        self.y = 1.0 * self.y
+        x = 0.5 * x
+        y = 1.0 * y
 
-        left = self.y + self.x
-        right = self.y - self.x
+        left = y + x
+        right = y - x
 
-        return left, right
+        self.joystick_array[0] = left
+        self.joystick_array[1] = right
 
 
     # def turn_action(self):

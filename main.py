@@ -13,14 +13,14 @@
 #   - handles event-streams (places all input in queue)
 #   - pops events from queue and sends to state machine
 
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Array
 import time
 
 from machine import AEVC
 
 from console import console
 import teensy_talker as teensy
-import remote_controller as xbox
+from remote_controller import RemoteController
 
 # async collector of info and placing it in queue
 
@@ -29,12 +29,16 @@ teensy_queue = Queue()
 
 m = AEVC()
 
+joystickArray = Array('d', [0.0] * 4)
+xbox = RemoteController(joystickArray)
 
-def dequeue():
 
+def dequeue(ja):
 
+    m.set_joystick_array(ja)
 
     while True:
+
         if not user_queue.empty():
             a = user_queue.get()
             print(a)
@@ -50,7 +54,7 @@ def dequeue():
                 teensy_queue.put(r)
 
 
-p = Process(target=dequeue, args=())
+p = Process(target=dequeue, args=(joystickArray, ))
 p.start()
 
 
@@ -80,9 +84,9 @@ def teensy_push(arg):
 import datetime
 
 while True:
+    time.sleep(.1)
     v = read_from_teensy()
     teensy_push(v)
 
     user_push(read_from_terminal())
-
     user_push(read_from_xbox())

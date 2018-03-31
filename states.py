@@ -1,13 +1,12 @@
 import time
 from com_messages import Commands
 
-
 from state_template import AEVCState
 
 import teensy_talker as teensy
 #import seer
-import remote_controller as rc
 
+joystickArray = None
 returnMessages = []
 
 
@@ -71,7 +70,8 @@ class Manual(AEVCState):
         if event is Commands.disable:
             return Sleep()
 
-        (left, right) = rc.drive_action()
+        left = joystickArray[0]
+        right = joystickArray[1]
         print("Manual, command is " + str(left) + ", " + str(right))
         teensy.set_velocity(left, right)
 

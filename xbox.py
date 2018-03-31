@@ -39,6 +39,7 @@ class Joystick:
         joy = xbox.Joystick()
     """
     def __init__(self, refreshRate = 15):
+        print("init joystick")
         self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver'], stdout=subprocess.PIPE)
         self.pipe = self.proc.stdout
         #
@@ -77,6 +78,7 @@ class Joystick:
     """
     def refresh(self):
         # Refresh the joystick readings based on regular defined freq
+
         if self.refreshTime < time.time():
             self.refreshTime = time.time() + self.refreshDelay  #set next refresh time
             # If there is text available to read from xboxdrv, then read it.
@@ -92,11 +94,6 @@ class Joystick:
                 # Valid controller response will be 140 chars.  
                 if len(response) == 140:
                     self.connectStatus = True
-
-                    raw = int(self.reading[3:9])
-                    self.axisScale(raw, deadzone)
-
-                    print("new response recorded: " + str(response[0:20]))
                     self.reading = response
                 else:  #Any other response means we have lost wireless or controller battery
                     self.connectStatus = False
@@ -240,8 +237,8 @@ class Joystick:
     #     x,y = joy.leftStick()
     def leftStick(self,deadzone=4000):
         self.refresh()
-        print("stick is: " + str(self.leftX(deadzone)))
-        return (self.leftX(deadzone),self.leftY(deadzone))
+        #print("stick is: " + str(self.leftX(deadzone)))
+        return (self.leftX(deadzone), self.leftY(deadzone))
 
     # Returns tuple containing X and Y axis values for Right stick scaled between -1.0 to 1.0
     # Usage:

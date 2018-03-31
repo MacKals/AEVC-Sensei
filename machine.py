@@ -42,6 +42,8 @@ class AEVC(object):
 
         self.update_state(event)
 
+    def set_joystick_array(self, ja):
+        s.joystickArray = ja
 
     # def controllerEvent(self, event):
     # The next state will be the result of the on_event function.
