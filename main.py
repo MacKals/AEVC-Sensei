@@ -14,6 +14,7 @@
 #   - pops events from queue and sends to state machine
 
 from multiprocessing import Process, Queue
+import time
 
 from machine import AEVC
 
@@ -30,6 +31,9 @@ m = AEVC()
 
 
 def dequeue():
+
+
+
     while True:
         if not user_queue.empty():
             a = user_queue.get()
@@ -55,7 +59,7 @@ def read_from_terminal():
 
 
 def read_from_xbox():
-    return xbox.command()
+    return xbox.read_command()
 
 
 def read_from_teensy():
@@ -63,21 +67,22 @@ def read_from_teensy():
 
 
 def user_push(arg):
-    if arg is not None and arg is not False:
-        arg = arg.rstrip()
+    if arg:
         user_queue.put(arg)
 
 
 def teensy_push(arg):
     if arg:
         arg = arg[0]
-        print(arg)
         teensy_queue.put(arg)
-        print(teensy_queue.qsize())
 
+
+import datetime
 
 while True:
-    teensy_push(read_from_teensy())
+    v = read_from_teensy()
+    teensy_push(v)
 
     user_push(read_from_terminal())
+
     user_push(read_from_xbox())

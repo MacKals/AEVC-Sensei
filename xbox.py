@@ -38,7 +38,7 @@ class Joystick:
     Usage:
         joy = xbox.Joystick()
     """
-    def __init__(self,refreshRate = 30):
+    def __init__(self, refreshRate = 15):
         self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver'], stdout=subprocess.PIPE)
         self.pipe = self.proc.stdout
         #
@@ -80,7 +80,7 @@ class Joystick:
         if self.refreshTime < time.time():
             self.refreshTime = time.time() + self.refreshDelay  #set next refresh time
             # If there is text available to read from xboxdrv, then read it.
-            readable, writeable, exception = select.select([self.pipe],[],[],0)
+            readable, writeable, exception = select.select([self.pipe], [], [], 0)
             if readable:
                 # Read every line that is availabe.  We only need to decode the last one.
                 while readable:
@@ -88,10 +88,15 @@ class Joystick:
                     # A zero length response means controller has been unplugged.
                     if len(response) == 0:
                         raise IOError('Xbox controller disconnected from USB')
-                    readable, writeable, exception = select.select([self.pipe],[],[],0)
+                    readable, writeable, exception = select.select([self.pipe], [], [], 0)
                 # Valid controller response will be 140 chars.  
                 if len(response) == 140:
                     self.connectStatus = True
+
+                    raw = int(self.reading[3:9])
+                    self.axisScale(raw, deadzone)
+
+                    print("new response recorded: " + str(response[0:20]))
                     self.reading = response
                 else:  #Any other response means we have lost wireless or controller battery
                     self.connectStatus = False
@@ -114,29 +119,29 @@ class Joystick:
     def leftX(self,deadzone=4000):
         self.refresh()
         raw = int(self.reading[3:9])
-        return self.axisScale(raw,deadzone)
+        return self.axisScale(raw, deadzone)
 
     # Left stick Y axis value scaled between -1.0 (down) and 1.0 (up)
     def leftY(self,deadzone=4000):
         self.refresh()
         raw = int(self.reading[13:19])
-        return self.axisScale(raw,deadzone)
+        return self.axisScale(raw, deadzone)
 
     # Right stick X axis value scaled between -1.0 (left) and 1.0 (right)
     def rightX(self,deadzone=4000):
         self.refresh()
         raw = int(self.reading[24:30])
-        return self.axisScale(raw,deadzone)
+        return self.axisScale(raw, deadzone)
 
     # Right stick Y axis value scaled between -1.0 (down) and 1.0 (up)
     def rightY(self,deadzone=4000):
         self.refresh()
         raw = int(self.reading[34:40])
-        return self.axisScale(raw,deadzone)
+        return self.axisScale(raw, deadzone)
 
     # Scale raw (-32768 to +32767) axis with deadzone correcion
     # Deadzone is +/- range of values to consider to be center stick (ie. 0.0)
-    def axisScale(self,raw,deadzone):
+    def axisScale(self, raw, deadzone):
         if abs(raw) < deadzone:
             return 0.0
         else:
@@ -235,6 +240,7 @@ class Joystick:
     #     x,y = joy.leftStick()
     def leftStick(self,deadzone=4000):
         self.refresh()
+        print("stick is: " + str(self.leftX(deadzone)))
         return (self.leftX(deadzone),self.leftY(deadzone))
 
     # Returns tuple containing X and Y axis values for Right stick scaled between -1.0 to 1.0

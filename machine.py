@@ -12,7 +12,7 @@ class AEVC(object):
 
     def update_state(self, event):
         new_state = self.state.on_event(event)
-        
+
         if new_state:
             self.state.on_exit()
 
@@ -27,7 +27,7 @@ class AEVC(object):
             s.returnMessages.remove(event)
             print("successfully removed " + str(event) + " from " + str(s.returnMessages))
         else:
-            print("error in machine.py, tried to remove " + str(event) + " from " + str(s.returnMessages))
+            print("Passing on message from Teensy: " + str(event))
 
         if not s.returnMessages:
             self.update_state(event)

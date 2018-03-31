@@ -5,7 +5,7 @@ port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
 
 
 def read_line():
-    if port.inWaiting:
+    if port.inWaiting():
         return port.readline()
     return False
 
@@ -56,7 +56,7 @@ def home_base():
 
 def home():
     port.write("H")
-    return "hhdddddd"
+    return "hhdddd"
 
 
 def set_velocity(left, right):
