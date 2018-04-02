@@ -19,6 +19,9 @@ class AEVCState(object):
     def on_exit(self):
         pass
 
+    def tick(self):
+        pass
+
     def __repr__(self):
         """
         Leverages the __str__ method to describe the State.

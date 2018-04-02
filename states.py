@@ -59,24 +59,30 @@ class Manual(AEVCState):
     # In this state we are not requiring one command to be completed before
     # the next is initialized, but we still want to keep track
     def on_entry(self):
-        teensy.set_velocity(0, 0)
+        teensy.set_velocity(0, 0, 0, 0)
 
     def on_event(self, event):
-
+        
         if event is Commands.connect:
             return Detecting()
         if event is Commands.stop:
             return Idle()
         if event is Commands.disable:
             return Sleep()
+        if event is Commands.to_home_position:
+            teensy.home_to_home_position()
+        if event is Commands.init:
+            return Initialize()
 
+    def tick(self):
         left = joystickArray[0]
         right = joystickArray[1]
-        print("Manual, command is " + str(left) + ", " + str(right))
-        teensy.set_velocity(left, right)
+        theta = joystickArray[2]
+        h = joystickArray[3]
+        teensy.set_velocity(left, right, theta, h)
 
     def on_exit(self):
-        teensy.set_velocity(0, 0)
+        teensy.set_velocity(0, 0, 0, 0)
 
 
 # Automated workflow states:

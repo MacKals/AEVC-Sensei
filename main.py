@@ -24,6 +24,7 @@ from remote_controller import RemoteController
 
 # async collector of info and placing it in queue
 
+direct_queue = Queue()
 user_queue = Queue()
 teensy_queue = Queue()
 
@@ -37,7 +38,16 @@ def dequeue(ja):
 
     m.set_joystick_array(ja)
 
+    wait_time = time.time() + 2
+    manual_refresh_rate = 15
+    manual_refrash_delay = 1.0 / manual_refresh_rate
+
     while True:
+
+        if not direct_queue.empty():
+            a = direct_queue.get()
+            print(a)
+            m.direct_event(a)
 
         if not user_queue.empty():
             a = user_queue.get()
@@ -52,6 +62,10 @@ def dequeue(ja):
             r = m.teensy_event(a)
             if r:
                 teensy_queue.put(r)
+
+        if wait_time < time.time():
+            wait_time = time.time() + manual_refrash_delay
+            m.timer_event()
 
 
 p = Process(target=dequeue, args=(joystickArray, ))
@@ -70,6 +84,11 @@ def read_from_teensy():
     return teensy.read_line()
 
 
+def terminal_push(arg):
+    if arg:
+        direct_queue.put(arg)
+
+
 def user_push(arg):
     if arg:
         user_queue.put(arg)
@@ -77,16 +96,12 @@ def user_push(arg):
 
 def teensy_push(arg):
     if arg:
+        print(arg)
         arg = arg[0]
         teensy_queue.put(arg)
 
 
-import datetime
-
 while True:
-    time.sleep(.1)
-    v = read_from_teensy()
-    teensy_push(v)
-
-    user_push(read_from_terminal())
+    teensy_push(read_from_teensy())
     user_push(read_from_xbox())
+    terminal_push(read_from_terminal())

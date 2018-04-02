@@ -18,6 +18,7 @@ class RemoteController(object):
     # initiated for most combinations of commands
 
     def read_command(self):
+
         new_command = self.command()
         if new_command is self.lastCommand:
             return None
@@ -38,21 +39,31 @@ class RemoteController(object):
             return Commands.connect
         if self.j.Start():
             return Commands.init
+        if self.j.Back():
+            return Commands.to_home_position
         return None
 
     def store_drive_action(self):
 
-        x, y = self.j.leftStick()
+        x, y = self.j.leftStick(2*4000)
 
         # Scale down input
-        x = 0.5 * x
-        y = 1.0 * y
+        x = 0.3 * x
+        y = 0.3 * y
 
         left = y + x
         right = y - x
 
         self.joystick_array[0] = left
         self.joystick_array[1] = right
+
+        theta, h = self.j.rightStick(2*4000)
+
+        # Scale down input
+        theta = 0.4 * theta
+        h = 0.8 * h
+        self.joystick_array[2] = theta
+        self.joystick_array[3] = h
 
 
     # def turn_action(self):

@@ -15,3 +15,4 @@ class Commands(Enum):
     init = 's'
     connect = 'x'
     manual = 'a'
+    to_home_position = 'h'

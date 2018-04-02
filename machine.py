@@ -1,4 +1,5 @@
 import states as s
+import teensy_talker as teensy
 
 
 class AEVC(object):
@@ -22,6 +23,9 @@ class AEVC(object):
         else:
             print("Stayed in " + str(self.state))
 
+    def direct_event(self, event):
+        teensy.send_command(event)
+
     def teensy_event(self, event):
         if event in s.returnMessages:
             s.returnMessages.remove(event)
@@ -31,6 +35,9 @@ class AEVC(object):
 
         if not s.returnMessages:
             self.update_state(event)
+
+    def timer_event(self):
+        self.state.tick()
 
     def user_event(self, event):
 
