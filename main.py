@@ -46,17 +46,14 @@ def dequeue(ja):
 
         if not direct_queue.empty():
             a = direct_queue.get()
-            print(a)
             m.direct_event(a)
 
         if not user_queue.empty():
             a = user_queue.get()
-            print(a)
             m.user_event(a)
 
         if not teensy_queue.empty():
             a = teensy_queue.get()
-            print(a)
             r = m.teensy_event(a)
             if r:
                 teensy_queue.put(r)
@@ -94,7 +91,7 @@ def user_push(arg):
 
 def teensy_push(arg):
     if arg:
-        print(arg)
+        print("Teensy message: " + arg.rstrip())
         arg = arg[0]
         teensy_queue.put(arg)
 

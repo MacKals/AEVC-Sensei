@@ -19,9 +19,9 @@ class AEVC(object):
 
             self.state = new_state
             self.state.on_entry()
-            print("Transitioned to " + str(self.state) + ": " + str(event))  # announce state change made
+            print("Transitioned to: " + str(self.state) + " based on event: " + str(event))  # announce state change made
         else:
-            print("Stayed in " + str(self.state))
+            print("Stayed in: " + str(self.state))
 
     def direct_event(self, event):
         if self.state is not s.Idle:
@@ -33,12 +33,12 @@ class AEVC(object):
     def teensy_event(self, event):
         if event in s.returnMessages:
             s.returnMessages.remove(event)
-            print("successfully removed " + str(event) + " from " + str(s.returnMessages))
+            print("Successfully removed: " + str(event) + " from: " + str(s.returnMessages))
         else:
-            print("Passing on message from Teensy: " + str(event))
+            print("Teensy message: " + str(event) + " not in returnMessages.")
 
         if not s.returnMessages:
-            print(event)
+            print("Passing on message from Teensy: " + str(event))
             self.update_state(event)
 
     def timer_event(self):
