@@ -52,9 +52,7 @@ def dequeue(ja):
         if not user_queue.empty():
             a = user_queue.get()
             print(a)
-            r = m.user_event(a)
-            if r:
-                user_queue.put(r)
+            m.user_event(a)
 
         if not teensy_queue.empty():
             a = teensy_queue.get()

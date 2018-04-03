@@ -26,7 +26,6 @@ def enable():
 
 
 def disable():
-    print('disabeling command sent')
     port.write("DI" + ',')
 
 
@@ -66,8 +65,9 @@ def spin_base(angle):
     global currentTheta, maxTheta
 
     new_theta = currentTheta - angle
-    if abs(new_theta) < maxTheta:
+    if abs(new_theta) <= maxTheta:
         currentTheta = new_theta
+        print("SB " + str("%.4f" % angle) + ',')
         port.write("SB " + str("%.4f" % angle) + ',')
         return "ddd"
     print("Invalid angle.")

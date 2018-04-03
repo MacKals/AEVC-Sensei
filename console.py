@@ -19,8 +19,9 @@ class console(object):
     @staticmethod
     def get_data():
         if select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
-            return sys.stdin.read(1)
+            return sys.stdin.readline()
         return False
+
 
 
 # Example:
@@ -32,18 +33,18 @@ class console(object):
 #         if nbc.get_data() == '\x1b':  # x1b is ESC
 #             break
 #
-# import time
-# con = console()
-# while True:
-#     time.sleep(0.1)
-#     d = con.get_data()
-#     if d:
-#         print(d)
-#     if d == 'w':
-#         print('up')
-#     elif d == 's':
-#         print('down')
-#     elif d == 'a':
-#         print('right')
-#     elif d == 'd':
-#         print('left')
+import time
+con = console()
+while True:
+    time.sleep(0.1)
+    d = con.get_data()
+    if d:
+        print(d)
+    if d == 'w':
+        print('up')
+    elif d == 's':
+        print('down')
+    elif d == 'a':
+        print('right')
+    elif d == 'd':
+        print('left')

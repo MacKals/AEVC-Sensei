@@ -41,6 +41,15 @@ class RemoteController(object):
             return Commands.init
         if self.j.Back():
             return Commands.to_home_position
+        if self.j.dpadLeft():
+            return Commands.base_to_left
+        if self.j.dpadRight():
+            return Commands.base_to_right
+        if self.j.dpadUp():
+            return Commands.base_to_front
+        if self.j.dpadDown():
+            return Commands.base_to_back
+
         return None
 
     def store_drive_action(self):

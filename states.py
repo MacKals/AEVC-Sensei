@@ -59,27 +59,49 @@ class Manual(AEVCState):
     # In this state we are not requiring one command to be completed before
     # the next is initialized, but we still want to keep track
     def on_entry(self):
-        teensy.set_velocity(0, 0, 0, 0)
+        teensy.enable()
+        time.sleep(1)
+
+    wait = False
 
     def on_event(self, event):
-        
+
+        if event is 'k' and self.wait is True:
+            print('Position driven motion completed.')
+            self.wait = False
+
         if event is Commands.connect:
             return Detecting()
         if event is Commands.stop:
             return Idle()
         if event is Commands.disable:
             return Sleep()
-        if event is Commands.to_home_position:
-            teensy.home_to_home_position()
         if event is Commands.init:
             return Initialize()
 
+        if event is Commands.to_home_position:
+            teensy.home_to_home_position()
+            self.wait = True
+        if event is Commands.base_to_back:
+            teensy.spin_base(180+teensy.currentTheta)
+            self.wait = True
+        if event is Commands.base_to_left:
+            teensy.spin_base(90+teensy.currentTheta)
+            self.wait = True
+        if event is Commands.base_to_right:
+            teensy.spin_base(-90+teensy.currentTheta)
+            self.wait = True
+        if event is Commands.base_to_front:
+            teensy.spin_base(0+teensy.currentTheta)
+            self.wait = True
+
     def tick(self):
-        left = joystickArray[0]
-        right = joystickArray[1]
-        theta = joystickArray[2]
-        h = joystickArray[3]
-        teensy.set_velocity(left, right, theta, h)
+        if not self.wait:
+            left = joystickArray[0]
+            right = joystickArray[1]
+            theta = joystickArray[2]
+            h = joystickArray[3]
+            teensy.set_velocity(left, right, theta, h)
 
     def on_exit(self):
         teensy.set_velocity(0, 0, 0, 0)

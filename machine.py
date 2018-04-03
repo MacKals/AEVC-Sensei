@@ -24,6 +24,10 @@ class AEVC(object):
             print("Stayed in " + str(self.state))
 
     def direct_event(self, event):
+        if self.state is not s.Idle:
+            self.state.on_exit()
+            self.state = s.Idle()
+            self.state.on_entry()
         teensy.send_command(event)
 
     def teensy_event(self, event):
@@ -34,6 +38,7 @@ class AEVC(object):
             print("Passing on message from Teensy: " + str(event))
 
         if not s.returnMessages:
+            print(event)
             self.update_state(event)
 
     def timer_event(self):

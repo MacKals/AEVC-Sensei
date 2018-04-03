@@ -16,3 +16,9 @@ class Commands(Enum):
     connect = 'x'
     manual = 'a'
     to_home_position = 'h'
+
+    base_to_back = '1'
+    base_to_left = '2'
+    base_to_right = '3'
+    base_to_front = '4'
+
